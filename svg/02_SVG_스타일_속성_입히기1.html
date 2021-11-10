@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <style>
+      .linecap-demo {
+        stroke: darkmagenta;
+        stroke-width: 5;
+      }
+    </style>
+  </head>
+  <body>
+    <p>코드 작성</p>
+
+    <!-- SVG 태그의 다른 속성들 활용하기 -->
+    <!-- (필요없는 부분은 주석처리해서 사용하세요) -->
+
+    <svg width="500px" height="500px">
+
+      <!-- 1. fill & opacity 속성 사용하기 -->
+      <!-- - fill : 도형 내부 색상 채움, 색상은 HEX, RGB 등 여러 방식으로 설정 가능 -->
+      <circle cx="120" cy="50" r="20" fill="darkmagenta"/>
+
+      <!-- - opacity로 투명도 설정 -->
+      <circle cx="100" cy="50" r="40" fill="rgba(0,0,255,0.5)"/>
+      <circle cx="50" cy="50" r="40" fill="rgb(0,0,255)" opacity="0.5"/>
+
+
+      <!-- 2. stroke 속성 사용하기 -->
+      <!-- - stroke : stroke의 색상 -->
+      <!-- - stroke-width : stroke의 너비 -->
+      <!-- - stroke-opacity : stroke의 투명도 -->
+      <!-- - stroke-linecap : stroke의 끝 모양 설정, butt/round/square 세가지 형태 지정 가능 -->
+      <!-- - stroke-dasharray : stroke 마디의 길이를 지정하면서 점선 형태로 설정 -->
+
+      <text x="0" y="20" font-weight="bold">Linecaps</text>
+      <text x="0" y="50">Butt</text>
+      <line x1="60" y1="45" x2="200" y2="45" class="linecap-demo" stroke-linecap="butt"></line>
+      <text x="0" y="70">Round</text>
+      <line x1="60" y1="65" x2="200" y2="65" class="linecap-demo" stroke-linecap="round"></line>
+      <text x="0" y="90">Square</text>
+      <line x1="60" y1="85" x2="200" y2="85" class="linecap-demo" stroke-linecap="square"></line>
+    </svg>
+  </body>
+</html>

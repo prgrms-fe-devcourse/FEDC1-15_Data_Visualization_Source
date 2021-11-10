@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 13px;
+            }
+            .arc-path {
+              fill: steelblue;
+            }
+            .arc-text {
+              fill: white;
+            }
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+
+        <script>
+            async function makeChart() {
+                const width = 475; 
+                const height = 240;
+                const margin = ({top: 20, right: 30, bottom: 30, left: 40});
+
+                const fruits = [
+                    {name: "🍊", count: 21},
+                    {name: "🍇", count: 13},
+                    {name: "🍏", count: 8},
+                    {name: "🍌", count: 5},
+                    {name: "🍐", count: 3},
+                    {name: "🍋", count: 2},
+                    {name: "🍎", count: 1},
+                    {name: "🍉", count: 1}
+                ]
+
+                // pie, arc 구성 
+                const pie = d3.pie()
+                  .value(d => d.count)(fruits);
+
+                const arc = d3.arc()
+                  .innerRadius(40)
+                  .outerRadius(100)
+                  .padAngle(0.005)
+                  .cornerRadius(1);
+
+                const body = d3.select("body");                
+                const svg = body.append("svg")
+                    .attr("viewBox", [-width / 2, -height / 2, width, height]);
+
+                // svg 요소 추가 
+                pie.forEach(d => {
+                  svg.append('path')
+                    .attr('class', 'arc-path')
+                    .attr('d', arc(d));
+
+                  const text = svg.append('text')
+                    .attr('class', 'arc-text')
+                    .attr('transform', 'translate(' + arc.centroid(d).join(',') + ')') //[x,y]
+
+                  text.append('tspan')
+                    .attr('x', '0')
+                    .style('font-size', '5')
+                    .text(d.data.name);
+
+                  text.append('tspan')
+                    .attr('x', '0')
+                    .attr('dy', '1.3em')
+                    .style('font-size', '5')
+                    .text(d.value.toLocaleString('en'));
+                })
+            }
+            makeChart();
+        </script>
+    </body>
+</html>

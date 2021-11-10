@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <style>
+      .blue-group {
+        fill: blue;
+        stroke-width: 3;
+      }
+      .red-group {
+        fill: red;
+        stroke-width: 4;
+        font-weight: bold;
+      }
+      .green-group {
+        fill: green;
+        stroke-width: 2;
+        fill-opacity: 0.5;
+      }
+    </style>
+  </head>
+  <body>
+    <p>코드 작성</p>
+
+    <svg width="600px" height="500px">
+
+      <!-- g 태그 활용하기 -->
+      <!-- - <g> 태그를 통해 요소를 그룹화 할 수 있습니다. -->
+
+      <!-- transform 속성으로 SVG 요소를 변형시키고, 움직이거나 회전시킬 수도 있다. -->
+      <!-- - transform="translate(200)" -->
+      <!-- - transform="scale(1.2)" -->
+      <!-- - transform="translate(200,120)" -->
+
+      <g class="blue-group" transform="scale(1.2)">
+        <text x="0" y="20">Blue group</text>
+        <rect x="0" y="40" width="50" height="50" rx="10" ry="10"/>
+        <polygon points="80,30 70,70 130,50"/>
+        <line x1="60" y1="75" x2="120" y2="90" stroke="blue"/>
+      </g>
+      <g class="red-group" transform="translate(200)">
+        <text x="0" y="20">Red group</text>
+        <rect x="0" y="40" width="50" height="50" rx="10" ry="10"/>
+        <polygon points="80,30 70,70 130,50"/>
+        <line x1="60" y1="75" x2="120" y2="90" stroke="red"/>
+      </g>
+      <g class="green-group" transform="translate(200, 120)">
+        <text x="0" y="20">Green group</text>
+        <rect x="0" y="40" width="50" height="50" rx="10" ry="10"/>
+        <polygon points="80,30 70,70 130,50"/>
+        <line x1="60" y1="75" x2="120" y2="90" stroke="green"/>
+      </g>
+    </svg>
+  </body>
+</html>

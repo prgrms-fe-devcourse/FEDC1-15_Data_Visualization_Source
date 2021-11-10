@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+          .line-path {
+            fill: none;
+            stroke-width: 1.5;
+          }
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <div id='header'>
+            <p>년도 별 BTS 멤버 각각의 작곡/작사 참여 횟수 (다중 선 차트)</p>
+        </div>
+        <script>
+          async function getData() {
+            const memberMap = new Map();
+            const datesSet = new Set();
+            const series = [];
+
+            const csv = await d3.csv('./data/groupedParticipateByReleaseDateAndMember.csv');
+            csv.forEach(({date, member, value}) => {
+              datesSet.add(new Date(date));
+              if (!memberMap.has(member)) {
+                memberMap.set(member, series.length);
+                series.push({member, values: []});
+              }
+              const d = series[memberMap.get(member)];
+              d.values.push({
+                member, date: new Date(date), value: parseInt(value)
+              });
+            })
+
+            return {
+              series,
+              dates: Array.from(datesSet),
+              members: Array.from(memberMap.keys()).sort()
+            }
+          }
+          async function makeChart() {
+            const data = await getData();
+
+            const margin = { top: 10, right: 50, bottom: 30, left: 50};
+            const width = 1000 - margin.left - margin.right;
+            const height = 400 - margin.top - margin.bottom;
+
+            const body = d3.select('body');
+            const svg = body.append('svg')
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom)
+              .append('g')
+              .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+            const xScale = d3.scaleUtc()
+              .domain(d3.extent(data.dates))
+              .range([margin.left, width - margin.right]);
+
+            const yScale = d3.scaleLinear()
+              .domain([0, d3.max(data.series, (s) => d3.max(s.values, (d) => d.value))])
+              .range([height - margin.bottom, margin.top]);
+
+            const xAxis = d3.axisBottom(xScale);
+            const yAxis = d3.axisLeft(yScale);
+
+            const line = d3.line()
+              .x(d => xScale(d.date))
+              .y(d => yScale(d.value));
+
+            svg.append('g')
+              .attr('transform', `translate(0,${height - margin.bottom})`)
+              .call(xAxis);
+
+            svg.append('g')
+              .attr('transform', `translate(${margin.left},0)`)
+              .call(yAxis);
+
+            const lineGroup = svg.append('g')
+              .selectAll('g')
+              .data(data.series)
+              .join('g')
+
+            lineGroup.append('path')
+              .attr('d', d => line(d.values))
+              .attr('class', 'line-path')
+              .style('stroke', (d, i) => d3.schemeCategory10[i % 10])
+              .style('opacity', 1)
+
+          }
+
+          makeChart();
+        </script>
+    </body>
+</html>

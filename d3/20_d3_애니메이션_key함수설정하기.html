@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+        }
+        .top-label {
+          font-size: 13px;
+          font-style: italic;
+          text-transform: uppercase;
+          float: left;
+        }
+        .movie-label {
+          text-align: right;
+          font-weight: bold;
+          width: 145px;
+          padding-right: 10px;
+        }
+        .clearfix {
+          clear: both;
+        }
+        .bar {
+          fill: DarkSlateBlue;
+        }
+        .bar-label {
+          text-anchor: end;
+        }
+        .axis-label {
+          text-anchor: middle;
+        }
+        .button {
+          float: left;
+          margin-left: 10px;
+          cursor: pointer;
+        }
+        .selected {
+          font-weight: bold;
+        }
+        .play-button {
+          margin-left: 10px;
+          margin-bottom: 15px;
+          font-style: italic;
+          cursor: pointer;
+          color: grey;
+        }
+        .play-button:hover {
+          color: black;
+        }
+      </style>        
+    </head>
+    <body>
+
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <script>
+        const keys = (d) => {
+          return d.name;
+        };
+
+        async function makeChart() {
+          const data = await d3.json('./data/sample.json');
+          let year = '2019';
+          let selectedData = data.filter(el => el.year === year);
+          const nameList = selectedData.map(d => d.name);
+          const valueList = selectedData.map(d => d.value);
+          const years = [ '2020', '2019', '2018', '2017', '2016', '2015' ];
+          const title = '년 연령별 데이터';
+
+          const margin = { top: 30, right: 50, bottom: 0, left: 150 };
+          const width = 400;
+          const height = 170;
+
+          const x = d3.scaleLinear()
+            .domain([0, d3.max(selectedData, d => d.value)])
+            .range([0, width]);
+
+          const xAxis = d3.axisTop(x)
+            .ticks(4)
+            .tickFormat((d, i) => { return `${!!d ? Math.floor(d / 10000) : d}만명`});
+
+          const y = d3.scaleBand()
+            .domain(nameList)
+            .range([0, height])
+            .paddingInner(0.2);
+
+          const yAxis = d3.axisLeft(y);
+
+          const body = d3.select('body');
+
+          body.append('h2')
+            .text(year + title);
+
+          const playAll = body.append('div')
+            .attr('class', 'play-button')
+            .text('▶ PLAY ALL YEARS');
+
+          const buttons = body.append('div')
+            .attr('class', 'buttons-container')
+            .selectAll('div')
+            .data(years)
+            .join('div')
+            .text(d => d)
+            .attr('class', d => {
+              if (d === year) {
+                return 'button selected';
+              } else {
+                return 'button';
+              }
+            })
+
+
+          body.append('div')
+            .attr('class', 'top-label movie-label')
+            .append('p')
+            .text('연령');
+
+          body.append('div')
+            .attr('class', 'top-label')
+            .append('p')
+            .text('인원');
+
+          body.append('div')
+            .attr('class', 'clearfix');
+
+          // const svg = body.append('svg');
+          const svgGroup = body.append('svg')
+            .attr('width', width + margin.left + margin.right)
+            .attr('height', height + margin.top + margin.bottom)
+            .append('g')
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+          const barGroup = svgGroup.append('g')
+            .attr('class', 'bar');
+
+          const barHeight = 20,
+            barGap = 5,
+            barSpacing = barHeight + barGap;
+
+          const bars = barGroup.selectAll('rect')
+            .data(selectedData, keys)
+            .join('rect')
+            .attr('x', '0')
+            .attr('y', (d, i) => { return y(d.name) })
+            .attr('height', barHeight)
+            .attr('width', (d) => { return x(d.value) });
+
+          const tickHeight = -10;
+          const tickGap = -5;
+          const axisData = [0, 5601253, 11202506, 16803759];
+
+          svgGroup.append('g')
+            .call(xAxis)
+            .attr('class', 'x-axis');
+
+          svgGroup.append('g')
+            .call(yAxis)
+            .attr('class', 'y-axis');
+
+          let playInterval;
+          buttons.on('click', function(el, d) {
+            clearInterval(playInterval);
+            update(d);
+          });
+
+          playAll.on('click', function(el, d) {
+            let i = 0;
+            playInterval = setInterval(() => {
+              update(years[i]);
+              i++;
+
+              if (i > years.length - 1) {
+                clearInterval(playInterval);
+              };
+            }, 1500);
+          })
+
+          function update(updateYear) {
+            d3.select('.selected')
+              .classed('selected', false);
+            // filter 
+            buttons.filter(d => d === updateYear)
+              .classed('selected', true);
+
+            year = updateYear;
+            selectedData = data.filter(el => el.year === year);
+
+            y.domain(selectedData.map(d => d.name));
+            const yAxis = d3.axisLeft(y);
+            svgGroup.selectAll('g.y-axis')
+              .call(yAxis);
+            bars.data(selectedData, keys)
+              .transition()
+              .duration(500)
+              .delay(500)
+              .ease(d3.easeBounce)
+              .attr('y', d => y(d.name))
+              .attr('width', d => x(d.value));
+
+            body.selectAll('h2')
+              .text(year + title);
+          }
+        }
+
+        makeChart();
+      </script>
+    </body>
+</html>

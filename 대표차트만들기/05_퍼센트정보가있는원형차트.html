@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <div id='header'>
+            <p>BTS 작곡 참여도 (퍼센트 정보가 있는 원형 차트)</p>
+        </div>
+        <script>
+          async function getData() {
+            // participateCompositionRatio.csv
+            const csv = await d3.csv('./data/participateCompositionRatio.csv');
+            return csv.map(d => {
+              d.value = parseFloat(d.value);
+              return d;
+            })
+          }
+
+          async function makeChart() {
+            const data = await getData();
+
+            const margin = { top: 30, right: 50, bottom: 30, left: 50};
+            const width = 800 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            const body = d3.select('body');
+
+            const div = body.append('div')
+              .style('width', width + 'px')
+              .style('position', 'relative');
+          
+            const svg = body.append("svg")
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom)
+              .attr("viewBox", [-width / 2, -height / 2, width, height]);
+           
+            const radius = Math.min(width, height) / 2;
+            const arc = d3.arc()
+              .innerRadius(radius * 0.85)
+              .outerRadius(radius - 1)
+              .cornerRadius(4);
+
+            const pie = d3.pie()
+              .padAngle(0.02)
+              .value(d => d.value)(data);
+
+            const colorScale = d3.scaleOrdinal()
+              .domain(data.map(d => d.name))
+              .range(d3.schemeSet3);
+
+            svg.append('g')
+              .selectAll('path')
+              .data(pie)
+              .join('path')
+              .attr('fill', d => colorScale(d.data.name))
+              .attr('d', arc);
+
+            const key = '멤버 작곡 참여 비율';
+            div.append('div')
+              .style('position', 'absolute')
+              .style('display', 'flex')
+              .style('align-items', 'center')
+              .style('text-align', 'center')
+              .style('font-size', '50px')
+              .style('font-weight', 'bold')
+              .style('width', (width + margin.left + margin.right) + 'px')
+              .style('height', (height + margin.top + margin.bottom) + 'px')
+              .style('color', colorScale(key))
+              .append('div')
+                .style('width', (width + margin.left + margin.right) + 'px')
+                .text(d3.format('.0%')(data.find(d => d.name === key).value / 100))
+          }
+
+          makeChart();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <div id='header'>
+            <p>2015~2020년 연령별 통계 (묶은 막대 차트)</p>
+        </div>
+        <script>
+          async function getData() {
+            // sample.json
+            const json = await d3.json('./data/sample.json');
+            return json.sort((a, b) => a.year - b.year);
+          }
+
+          async function makeChart() {
+            const data = await getData();
+            const years = data.reduce((acc,cur) => {
+              acc.push(cur.year);
+              const s = new Set(acc);
+              return Array.from(s)
+            }, []);
+            const names = data.reduce((acc,cur) => {
+              acc.push(cur.name);
+              const s = new Set(acc);
+              return Array.from(s)
+            }, []);
+
+            const margin = { top: 30, right: 50, bottom: 30, left: 50};
+            const width = 800 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            const body = d3.select('body');
+            const svg = body.append('svg')
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom);
+
+            const xScale1 = d3.scaleBand()
+              .domain(years)
+              .range([margin.left, width - margin.right])
+              .paddingInner(0.1);
+
+            const xScale2 = d3.scaleBand()
+              .domain(names)
+              .range([0, xScale1.bandwidth()])
+              .paddingInner(0.1);
+
+            const yScale = d3.scaleLinear()
+              .domain([0, d3.max(data, d => d.value)])
+              .range([height - margin.bottom, margin.top]);
+
+            const colorScale = d3.scaleOrdinal()
+              .domain(names)
+              .range(d3.schemePastel1);
+
+            const xAxis = d3.axisBottom(xScale1).tickSizeOuter(0);
+            const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
+
+            const chart = svg.append('g')
+              .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            chart.append('g')
+              .attr('transform', `translate(0,${height - margin.bottom})`)
+              .call(xAxis);
+
+            chart.append('g')
+              .attr('transform', `translate(${margin.left},0)`)
+              .call(yAxis);
+
+            const rectGroup = chart.append('g')
+              .selectAll('g')
+              .data(data)
+              .join('g')
+              .attr('transform', d => `translate(${xScale1(d.year)},0)`);
+
+            rectGroup.selectAll('rect')
+              .data(d => data.filter(datum => datum.year === d.year))
+              .join('rect')
+              .attr('x', d => xScale2(d.name))
+              .attr('y', d => yScale(d.value))
+              .attr('width', xScale2.bandwidth())
+              .attr('height', d => yScale(0) - yScale(d.value))
+              .attr('fill', d => colorScale(d.name));
+          }
+
+          makeChart();
+        </script>
+    </body>
+</html>

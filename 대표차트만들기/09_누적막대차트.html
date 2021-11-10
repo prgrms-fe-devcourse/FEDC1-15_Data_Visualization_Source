@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <div id='header'>
+            <p>2015~2020년 연령별 통계 (누적 막대 차트)</p>
+        </div>
+        <script>
+          async function getData() {
+            // sample.json
+            const json = await d3.json('./data/sample.json');
+            return json.sort((a, b) => a.year - b.year);
+          }
+
+          function transformData(data, ages) {
+            const transformData = [];
+            const groupedData = d3.groups(data, d => d.year);
+
+            groupedData.forEach(group => {
+              const obj = { year: group[0] };
+              let sum = 0;
+              group[1].forEach(d => {
+                obj[d.name] = d.value;
+                sum += d.value;
+              });
+              obj.sum = sum;
+              transformData.push(obj);
+            })
+            return transformData;
+          }
+
+          async function makeChart() {
+            const data = await getData();
+            const years = data.reduce((acc, cur) => {
+              acc.push(cur.year);
+              const s = new Set(acc);
+              return Array.from(s);
+            }, []);
+            const ages = data.reduce((acc, cur) => {
+              acc.push(cur.name);
+              const s = new Set(acc);
+              return Array.from(s);
+            }, [])
+            const columnedData = transformData(data, ages);
+
+            const margin = { top: 30, right: 50, bottom: 30, left: 50};
+            const width = 800 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            const body = d3.select('body');
+            const svg = body.append('svg')
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom);
+
+            const xScale = d3.scaleBand()
+              .domain(years)
+              .range([margin.left, width - margin.right])
+              .paddingInner(0.1);
+
+            const yScale = d3.scaleLinear()
+              .domain([0, d3.max(columnedData, d => d.sum)])
+              .range([height - margin.bottom, margin.top]);
+
+            const colorScale = d3.scaleOrdinal()
+              .domain(ages)
+              .range(d3.schemeTableau10);
+
+            const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
+            const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
+
+            const stack = d3.stack()
+              .keys(ages)
+
+            const series = stack(columnedData);
+            
+            const chart = svg.append('g')
+              .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            chart.append('g')
+              .attr('transform', `translate(0,${height - margin.bottom})`)
+              .call(xAxis);
+
+            chart.append('g')
+              .attr('transform', `translate(${margin.left},0)`)
+              .call(yAxis);
+
+            const rectGroup = chart.append('g')
+              .selectAll('g')
+              .data(series)
+              .join('g')
+              .attr('fill', d => colorScale(d.key))
+            
+            rectGroup.selectAll('rect')
+              .data(d => d)
+              .join('rect')
+              .attr('x', d => xScale(d.data.year))
+              .attr('y', d => yScale(d[1]))
+              .attr('width', xScale.bandwidth())
+              .attr('height', d => yScale(d[0]) - yScale(d[1]))
+              
+
+            // const legendGroup = svg.append('g')
+            //   .attr('transform', `translate(${margin.left},0)`)
+            //   .attr('text-anchor', 'start')
+            //   .attr('font-family', 'sans-serif')
+            //   .attr('font-size', 10);
+
+            // const legend = legendGroup.selectAll('.legend')
+            //   .data(colorScale.domain())
+            //   .join('g')
+            //   .attr('transform', (d, i) => `translate(${i * 90},0)`);
+
+            // legend.append('rect')
+            //   .attr('width', 15)
+            //   .attr('height', 15)
+            //   .attr('fill', colorScale);
+
+            // legend.append('text')
+            //   .attr('x', 23)
+            //   .attr('y', 9.5)
+            //   .attr('dy', '0.35em')
+            //   .text(d => d);
+          }
+
+          makeChart();
+        </script>
+    </body>
+</html>

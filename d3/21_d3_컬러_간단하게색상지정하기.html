@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+    </style>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+        // 먼저 간단한 svg 요소 추가 
+        const body = d3.select('body');
+        const svg = body.append('svg')
+          .attr('width', 1000)
+          .attr('height', 1000);
+
+        // Hex code : #69b3a2
+        svg.append('circle')
+          .attr('cx', 50)
+          .attr('cy', 100)
+          .attr('r', 20)
+          .attr('fill', d3.color('#69b3a2'))
+
+        // RGBA : rgba(198, 45, 205, 0.8)
+        svg.append('circle')
+          .attr('cx', 150)
+          .attr('cy', 100)
+          .attr('r', 20)
+          .attr('fill', d3.color('rgba(198, 45, 205, 0.8)'))
+
+        // RGB : rgb(12,240,233)
+        svg.append('circle')
+          .attr('cx', 250)
+          .attr('cy', 100)
+          .attr('r', 20)
+          .attr('fill', d3.color('rgb(12,240,233)')) 
+
+        // 색상명 : steelblue
+        svg.append('circle')
+          .attr('cx', 350)
+          .attr('cy', 100)
+          .attr('r', 20)
+          .attr('fill', d3.color('steelblue')) 
+
+        // opacity
+        const color1 = d3.color('steelblue')
+        color1.opacity = 0.5;
+        svg.append('circle')
+          .attr('cx', 450)
+          .attr('cy', 100)
+          .attr('r', 20)
+          .attr('fill', color1); 
+
+        // brighter
+        let color2 = d3.color('steelblue');
+        // svg.append('circle')
+        //   .attr('cx', 50)
+        //   .attr('cy', 200)
+        //   .attr('r', 20)
+        //   .attr('fill', color2); 
+
+        // color2 = color2.brighter();
+        // svg.append('circle')
+        //   .attr('cx', 150)
+        //   .attr('cy', 200)
+        //   .attr('r', 20)
+        //   .attr('fill', color2);  
+        const n = 5;
+        for (let i=0; i<n; i++) {
+          if (i != 0) {
+            color2 = color2.brighter();
+          }
+          svg.append('circle')
+            .attr('cx', 50 * (2*i+1))
+            .attr('cy', 200)
+            .attr('r', 20)
+            .attr('fill', color2);  
+        }
+
+        // for (let i=0; i<n; i++) {
+        //   if (i != 0) {
+        //     color2 = color2.darker();
+        //   }
+        //   svg.append('circle')
+        //     .attr('cx', 50 * (2*i+1))
+        //     .attr('cy', 300)
+        //     .attr('r', 20)
+        //     .attr('fill', color2);  
+        // }
+        // darker
+
+        for (let i=0; i<10; i++) {
+          if (i != 0) {
+            color2 = color2.darker(0.5);
+          }
+          svg.append('circle')
+            .attr('cx', 50 * (2*i+1))
+            .attr('cy', 300)
+            .attr('r', 20)
+            .attr('fill', color2);  
+        }
+    </script>
+  </body>
+</html>

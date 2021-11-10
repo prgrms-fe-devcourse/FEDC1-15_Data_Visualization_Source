@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, Helvetica, sans-serif;
+          font-size: 13px;
+        }
+        svg {
+          width: 600px;
+          height: 500px;
+        }
+        .top-label {
+          font-size: 13px;
+          font-style: italic;
+          text-transform: uppercase;
+          float: left;
+        }
+        .movie-label {
+          text-align: right;
+          font-weight: bold;
+          width: 145px;
+          padding-right: 10px;
+        }
+        .clearfix {
+          clear: both;
+        }
+        .bar {
+          fill: DarkSlateBlue;
+        }
+        .bar-label {
+          text-anchor: end;
+        }
+        .axis-label {
+          text-anchor: middle;
+        } 
+      </style>        
+    </head>
+    <body>
+
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+      <script>
+
+        const data = [
+          {
+            name: '극한직업',
+            value: 16264984
+          },
+          {
+            name: '어벤져스:엔드게임',
+            value: 13977602
+          },
+          {
+            name: '겨울왕국2',
+            value: 13747792
+          },
+          {
+            name: '알라딘',
+            value: 12551371
+          },
+          {
+            name: '기생충',
+            value: 10083172
+          },
+          {
+            name: '엑시트',
+            value: 9414388
+          },
+          {
+            name: '스파이더맨:파 프롬 홈',
+            value: 8021290
+          },
+        ];
+        const nameList = data.map(d => d.name);
+        const valueList = data.map(d => d.value);
+        const width = 400;
+        const scaleFactor = width / d3.max(valueList);
+        const scaleText = `scale(${scaleFactor},1)`;
+        const translateText = `translate(150,30)`;
+
+
+        const body = d3.select('body');
+
+        body.append('h2')
+          .text('2019년 1000만 관객 기록한 영화 관객수 TOP7');
+
+        body.append('div')
+          .attr('class', 'top-label movie-label')
+          .append('p')
+          .text('영화');
+
+        body.append('div')
+          .attr('class', 'top-label')
+          .append('p')
+          .text('관객수');
+
+        body.append('div')
+          .attr('class', 'clearfix');
+
+        const svg = body.append('svg');
+        const barGroup = svg.append('g')
+          .attr('class', 'bar')
+          .attr('transform', `${translateText} ${scaleText}`);
+
+        const barHeight = 20,
+          barGap = 5,
+          barSpacing = barHeight + barGap;
+
+        valueList.forEach((value, idx) => {
+          barGroup.append('rect')
+            .attr('x', '0')
+            .attr('y', barSpacing * idx)
+            .attr('height', barHeight)
+            .attr('width', value);
+        });
+
+        const barLabel = svg.append("g")
+              .attr("class", "bar-label");
+        
+        nameList.forEach((name, idx) => {
+          barLabel.append('text')
+            .attr('x', '140')
+            .attr('y', barHeight * (idx + 2) + barGap * (idx + 1))
+            .text(name);
+        });
+
+        const tickHeight = -10;
+        const tickGap = -5;
+        const axisData = [0, 5601253, 11202506, 16803759];
+
+        const xAxis = svg.append("g")
+            .attr("transform", `${translateText}`)
+            .attr("stroke", "black");
+        
+        const xScale = svg.append("g")
+            .attr("transform", `${translateText}`)
+            .attr("class", "axis-label");
+
+        for (let i=0; i<4; i++) {
+          xAxis.append("line")
+              .attr("x1", axisData[i] * scaleFactor)
+              .attr("y1", "0")
+              .attr("x2", axisData[i] * scaleFactor)
+              .attr("y2", tickHeight);
+
+          xScale.append('text')
+            .attr('x', axisData[i] * scaleFactor)
+            .attr('y', tickGap + tickHeight)
+            .text(`${!!axisData[i] ? Math.floor(axisData[i] / 100000) : axisData[i]}만명`);
+        }
+
+      </script>
+    </body>
+</html>

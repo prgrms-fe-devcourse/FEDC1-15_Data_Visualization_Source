@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            .box {
+              width: 50px;
+              height: 50px;
+              margin: 5px;
+              display: inline-block;
+              color: white;
+              padding: 5px;
+            }
+            .pink-box {
+              background-color: pink;
+            }
+            .aqua-box {
+              background-color: lightblue;
+            }
+          </style>
+    </head>
+    <body>
+      <script src="https://d3js.org/d3.v7.min.js"></script>
+      
+      <button onclick="insertBox1()">Insert</button>
+      <div id="insertBox1">
+          <div class="box pink-box"></div>
+          <div class="box pink-box"></div>
+          <div class="box pink-box"></div>
+      </div>
+
+      <button onclick="insertBox2()">Insert</button>
+      <div id="insertBox2">
+          <div class="box pink-box"></div>
+          <div class="box pink-box"></div>
+          <div class="box pink-box"></div>
+      </div>
+      
+      <script>
+          function insertBox1() {
+              d3.select("#insertBox1")
+                .insert("div")
+                .classed("box aqua-box", true)
+          }
+          function insertBox2() {
+              d3.selectAll("#insertBox2 > div")
+                .insert("div")
+                .classed("box aqua-box", true)
+          }
+      </script>
+    </body>
+</html>

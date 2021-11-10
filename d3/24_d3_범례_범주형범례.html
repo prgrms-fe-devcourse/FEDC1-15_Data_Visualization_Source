@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+    </style>
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+      const width = 320;
+      const height = 44;
+      const margin = ({top: 20, right: 0, bottom: 0, left: 20});
+      
+      const body = d3.select("body");
+
+      const svg = body.append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height",height + margin.top + margin.bottom)
+
+      const scale = d3.scaleOrdinal()
+        .domain(['blueberries', 'oranges', 'apples'])
+        .range(d3.schemeCategory10);
+
+      const legendGroup = svg.append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+        .attr('text-anchor', 'start')
+        .attr('font-family', 'sans-serif')
+        .attr('font-size', 10);
+
+      const legend = legendGroup.selectAll('.legend')
+        .data(scale.domain())
+        .join('g')
+        .attr('transform', (d, i) => 'translate(' + i * 90 + ', 0)');
+
+      const rectOfLegend = legend.append('rect')
+        .attr('width', 19)
+        .attr('height', 19)
+        .attr('fill', scale);
+
+      const textOfLegend = legend.append('text')
+        .attr('x', 23)
+        .attr('y', 9.5)
+        .attr('dy', '0.35em')
+        .text(d => d);
+    </script>
+  </body>
+</html>

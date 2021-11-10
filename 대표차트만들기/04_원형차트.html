@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <div id='header'>
+            <p>BTS 작곡 참여도 (원형 차트)</p>
+        </div>
+        <script>
+          async function getData() {
+            // participateCompositionRatio.csv
+            const csv = await d3.csv('./data/participateCompositionRatio.csv');
+            return csv.map(d => {
+              d.value = parseFloat(d.value);
+              return d;
+            })
+          }
+
+          async function makeChart() {
+            const data = await getData();
+
+            const margin = { top: 30, right: 50, bottom: 30, left: 50};
+            const width = 800 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            const body = d3.select('body');
+            const svg = body.append("svg")
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom)
+              .attr("viewBox", [-width / 2, -height / 2, width, height]);
+
+            const arc = d3.arc()
+              .innerRadius(0)
+              .outerRadius(Math.min(width, height) / 2 - 1);
+
+            const pie = d3.pie()
+              .value(d => d.value)(data)
+            
+            const colorScale = d3.scaleOrdinal()
+              .domain(data.map(d => d.name))
+              .range(d3.schemeSet3);
+
+            svg.append('g')
+              .selectAll('path')
+              .data(pie)
+              .join('path')
+              .attr('fill', d => colorScale(d.data.name))
+              .attr('d', arc);
+
+            const arcLabel = svg.append('g')
+              .attr('font-family', 'sans-serif')
+              .attr('font-size', 10)
+              .attr('text-anchor', 'middle')
+              .selectAll('text')
+              .data(pie)
+              .join('text')
+              .attr('transform', d => `translate(${arc.centroid(d)})`)
+
+            arcLabel.append('tspan')
+              .attr('y', '-0.4em')
+              .attr('font-weight', 'bold')
+              .attr('fill-opacity', 0.7)
+              .text(d => d.data.name);
+            
+            arcLabel.append('tspan')
+              .attr('x', 0)
+              .attr('y', '0.7em')
+              .attr('fill-opacity', 0.7)
+              .text(d => d.data.value.toLocaleString() + '%');
+          }
+
+          makeChart();
+        </script>
+    </body>
+</html>

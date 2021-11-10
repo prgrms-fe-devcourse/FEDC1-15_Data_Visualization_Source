@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+
+        <div id="header">
+            <p>Circle?</p>
+        </div>
+        <svg width="500px" height="40px">
+            <circle r="20" cx="50" cy="20"/>
+        </svg>
+        <div class="footer">
+            <p>Yes</p>
+        </div>
+
+        <!--  D3 selection (필요에 따라 주석처리해서 실행해주세요)-->
+        <script>  
+          // - d3.select, selection.text
+          console.log(d3.select('p').text());
+          console.log(d3.select('.footer').select('p').text());
+
+          // - selection.attr
+          const myCircle = d3.select('circle');
+          myCircle.attr('fill', 'red');
+          myCircle.attr('r', 5);
+
+
+          // - selection.style
+          d3.select('p').style('font-family', 'Arial');
+
+
+          // - selection.append, selection.remove
+          d3.select('#header').append('p')
+            .text('(Add text)')
+            .style('font-style', 'italic')
+            .style('color', 'gray');
+
+          d3.selectAll('div').remove();
+
+
+        </script>
+    </body>
+</html>

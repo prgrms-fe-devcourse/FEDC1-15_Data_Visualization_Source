@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+        </style>
+    </head>
+    <body>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <div id='header'>
+            <p>남자 아이돌 그룹 작곡 참여도 (누적 막대 차트 100%)</p>
+        </div>
+        <script>
+          async function getData() {
+            // participateCompositionRatioByArtist.csv
+            const csv = await d3.csv('./data/participateCompositionRatioByArtist.csv');
+            const data = csv.map(d => {
+              d['참여'] = parseFloat(d['참여']);
+              d['비참여'] = parseFloat(d['비참여']);
+              return d;
+            })
+            return data.sort((a, b) => b['참여'] - a['참여']);
+          }
+
+          async function makeChart() {
+            const data = await getData();
+            const columns = ['참여', '비참여'];
+
+            const margin = { top: 30, right: 50, bottom: 30, left: 50};
+            const width = 800 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            const body = d3.select('body');
+            const svg = body.append('svg')
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom)
+
+            const xScale = d3.scaleLinear()
+              .domain([0, 1])
+              .range([margin.left, width - margin.right]);
+
+            const yScale = d3.scaleBand()
+              .domain(data.map(d => d.name))
+              .range([margin.top, height - margin.bottom])
+              .padding(0.08);
+
+            const colorScale = d3.scaleOrdinal()
+              .domain(columns)
+              .range(['#9467bd', '#fee08b']);
+
+            const xAxis = d3.axisTop(xScale)
+              .tickFormat(d => d * 100 + '%');
+
+            const yAxis = d3.axisLeft(yScale)
+              .tickSizeOuter(0);
+
+            const stack = d3.stack()
+              .keys(columns)
+              .offset(d3.stackOffsetExpand);
+
+            const series = stack(data);
+
+            const chart = svg.append('g')
+              .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            chart.append('g')
+              .attr('transform', `translate(0, ${margin.top})`)
+              .call(xAxis)
+              .call(g => g.selectAll('.domain').remove());
+
+            chart.append('g')
+              .attr('transform', `translate(${margin.left}, 0)`)
+              .call(yAxis)
+              .call(g => g.selectAll('.domain').remove()); 
+
+            const stackGroup = chart.append('g')
+              .selectAll('g')
+              .data(series)
+              .join('g')
+              .attr('fill', d => colorScale(d.key))
+              .attr('fill-opacity', 0.9);
+
+            stackGroup.selectAll('rect')
+              .data(d => d)
+              .join('rect')
+              .attr('x', d => xScale(d[0]))
+              .attr('y', d => yScale(d.data.name))
+              .attr('width', d => xScale(d[1]) - xScale(d[0]))
+              .attr('height', yScale.bandwidth());
+          }
+
+          makeChart();
+        </script>
+    </body>
+</html>
